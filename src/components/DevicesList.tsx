@@ -3,6 +3,7 @@ import { HardDrive, Smartphone, Laptop, Shield, AlertCircle, CheckCircle2 } from
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { useElectron } from "@/hooks/useElectron";
 
 interface Device {
   id: string;
@@ -13,6 +14,7 @@ interface Device {
   serialNumber: string;
   fileSystem?: string;
   encryption?: boolean;
+  driveLetter?: string;
 }
 
 interface DevicesListProps {
@@ -20,60 +22,21 @@ interface DevicesListProps {
 }
 
 export const DevicesList = ({ onDeviceSelect }: DevicesListProps) => {
-  const [devices, setDevices] = useState<Device[]>([]);
-  const [scanning, setScanning] = useState(false);
-
-  const mockDevices: Device[] = [
-    {
-      id: "usb-001",
-      name: "Kingston DataTraveler USB Drive",
-      type: "removable",
-      size: "32 GB",
-      status: "ready",
-      serialNumber: "DT101G2-32GB-2024",
-      fileSystem: "FAT32",
-      encryption: false
-    },
-    {
-      id: "usb-002", 
-      name: "SanDisk Ultra USB 3.0",
-      type: "removable",
-      size: "128 GB", 
-      status: "ready",
-      serialNumber: "SDCZ48-128G-U46",
-      fileSystem: "NTFS",
-      encryption: true
-    },
-    {
-      id: "internal-001",
-      name: "Windows OS Drive (C:)",
-      type: "internal",
-      size: "500 GB",
-      status: "system", 
-      serialNumber: "WDC-WD5000AAKX",
-      fileSystem: "NTFS"
-    },
-    {
-      id: "mobile-001",
-      name: "Samsung Galaxy S24",
-      type: "mobile",
-      size: "256 GB",
-      status: "ready",
-      serialNumber: "SM-S928B-2024"
-    }
-  ];
+  const { devices, loading, error, fetchDevices, isElectron, getPlatformInfo } = useElectron();
+  const [localScanning, setLocalScanning] = useState(false);
+  const platformInfo = getPlatformInfo();
 
   useEffect(() => {
-    scanDevices();
-  }, []);
+    fetchDevices();
+  }, [fetchDevices]);
 
   const scanDevices = async () => {
-    setScanning(true);
-    // Simulate device scanning
-    await new Promise(resolve => setTimeout(resolve, 2000));
-    setDevices(mockDevices);
-    setScanning(false);
+    setLocalScanning(true);
+    await fetchDevices();
+    setLocalScanning(false);
   };
+
+  const scanning = loading || localScanning;
 
   const getDeviceIcon = (type: string) => {
     switch (type) {
@@ -110,6 +73,8 @@ export const DevicesList = ({ onDeviceSelect }: DevicesListProps) => {
             <CardTitle>Detected Devices</CardTitle>
             <CardDescription>
               Select a device to begin secure erasure process
+              {!isElectron && " (Web Demo Mode)"}
+              {isElectron && ` (${platformInfo.platform})`}
             </CardDescription>
           </div>
           <Button 
@@ -122,11 +87,23 @@ export const DevicesList = ({ onDeviceSelect }: DevicesListProps) => {
         </div>
       </CardHeader>
       <CardContent className="space-y-4">
+        {error && (
+          <div className="text-center py-4">
+            <AlertCircle className="h-8 w-8 text-destructive mx-auto mb-2" />
+            <p className="text-sm text-muted-foreground">{error}</p>
+            <Button variant="outline" className="mt-2" onClick={scanDevices}>
+              Try Again
+            </Button>
+          </div>
+        )}
+        
         {scanning ? (
           <div className="flex items-center justify-center py-8">
             <div className="text-center space-y-2">
               <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent mx-auto" />
-              <p className="text-sm text-muted-foreground">Scanning for devices...</p>
+              <p className="text-sm text-muted-foreground">
+                {isElectron ? "Scanning for devices..." : "Loading demo devices..."}
+              </p>
             </div>
           </div>
         ) : (
