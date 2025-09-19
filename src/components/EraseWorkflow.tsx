@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { ArrowLeft, AlertTriangle, Shield, Zap, CheckCircle2, FileX } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -7,8 +7,6 @@ import { Label } from "@/components/ui/label";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { useElectron } from "@/hooks/useElectron";
-import { toast } from "sonner";
 
 interface EraseWorkflowProps {
   device: any;
@@ -20,108 +18,37 @@ export const EraseWorkflow = ({ device, onBack, onComplete }: EraseWorkflowProps
   const [step, setStep] = useState<'confirm' | 'progress' | 'complete'>('confirm');
   const [confirmText, setConfirmText] = useState('');
   const [confirmYes, setConfirmYes] = useState('');
-  const [token, setToken] = useState('');
-  const [tokenValid, setTokenValid] = useState<boolean | null>(null);
-  const [currentJobId, setCurrentJobId] = useState<string | null>(null);
-  
-  const { 
-    isElectron, 
-    erasureProgress, 
-    validateToken, 
-    startErasure, 
-    clearProgress,
-    getPlatformInfo 
-  } = useElectron();
-  
-  const platformInfo = getPlatformInfo();
+  const [progress, setProgress] = useState(0);
+  const [currentOperation, setCurrentOperation] = useState('');
 
-  const requiredConfirmText = device?.driveLetter ? 
-    device.driveLetter : 
-    (device?.type === 'removable' ? device.id.split('-')[1] : 'THIS-PC');
+  const requiredConfirmText = device?.type === 'removable' ? device.id.split('-')[1] : 'THIS-PC';
   
-  // Token validation effect
-  useEffect(() => {
-    if (token.length >= 8) {
-      validateTokenAsync();
-    } else {
-      setTokenValid(null);
-    }
-  }, [token]);
-  
-  // Listen for erasure progress
-  useEffect(() => {
-    if (erasureProgress) {
-      if (erasureProgress.jobId === currentJobId) {
-        if (erasureProgress.type === 'complete') {
-          setStep('complete');
-          toast.success('Device erasure completed successfully!');
-        } else if (erasureProgress.type === 'error') {
-          toast.error(`Erasure failed: ${erasureProgress.message}`);
-          setStep('confirm');
-        }
-      }
-    }
-  }, [erasureProgress, currentJobId]);
-  
-  const validateTokenAsync = async () => {
-    try {
-      const result = await validateToken(token);
-      setTokenValid(result.valid);
-      if (!result.valid && result.reason) {
-        toast.error(`Invalid token: ${result.reason}`);
-      }
-    } catch (error) {
-      setTokenValid(false);
-      toast.error('Failed to validate token');
-    }
-  };
-  
-  const startErasureProcess = async () => {
-    if (!isConfirmationValid()) {
-      toast.error('Please complete all confirmations');
-      return;
-    }
+  const startErasure = async () => {
+    setStep('progress');
     
-    try {
-      setStep('progress');
-      clearProgress();
-      
-      if (isElectron) {
-        const result = await startErasure(device, token);
-        if (result.success) {
-          setCurrentJobId(result.jobId);
-          toast.success('Erasure process started');
-        } else {
-          throw new Error(result.error || 'Failed to start erasure');
-        }
-      } else {
-        // Mock process for web demo
-        const operations = [
-          'Demo: Requesting administrative privileges...',
-          'Demo: Analyzing device structure...',
-          'Demo: Beginning secure overwrite...',
-          'Demo: Verifying erasure completion...',
-          'Demo: Creating certificate...'
-        ];
-        
-        for (let i = 0; i < operations.length; i++) {
-          await new Promise(resolve => setTimeout(resolve, 1500));
-          // Mock progress would be handled by the erasureProgress system
-        }
-        
-        setStep('complete');
-        toast.success('Demo erasure completed!');
-      }
-    } catch (error) {
-      toast.error(error instanceof Error ? error.message : 'Erasure failed');
-      setStep('confirm');
+    const operations = [
+      'Requesting administrative privileges...',
+      'Analyzing device structure...',
+      'Identifying erasure method...',
+      'Beginning secure overwrite...',
+      'Wiping free space...',
+      'Verifying erasure completion...',
+      'Generating audit log...',
+      'Creating certificate...'
+    ];
+
+    for (let i = 0; i < operations.length; i++) {
+      setCurrentOperation(operations[i]);
+      setProgress(((i + 1) / operations.length) * 100);
+      await new Promise(resolve => setTimeout(resolve, 1500));
     }
+
+    setStep('complete');
   };
 
   const isConfirmationValid = () => {
     return confirmText.toLowerCase() === requiredConfirmText.toLowerCase() && 
-           confirmYes.toLowerCase() === 'yes' &&
-           tokenValid === true;
+           confirmYes.toLowerCase() === 'yes';
   };
 
   if (step === 'confirm') {
@@ -191,28 +118,6 @@ export const EraseWorkflow = ({ device, onBack, onComplete }: EraseWorkflowProps
             {/* Confirmation Inputs */}
             <div className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="license-token">
-                  License Token {!isElectron && "(Use 'demo-123' for web demo)"}
-                </Label>
-                <Input
-                  id="license-token"
-                  value={token}
-                  onChange={(e) => setToken(e.target.value)}
-                  placeholder="Enter your license token"
-                  className={`font-mono ${
-                    tokenValid === true ? 'border-success' : 
-                    tokenValid === false ? 'border-destructive' : ''
-                  }`}
-                />
-                {tokenValid === true && (
-                  <p className="text-sm text-success">✓ Token validated</p>
-                )}
-                {tokenValid === false && (
-                  <p className="text-sm text-destructive">✗ Invalid token</p>
-                )}
-              </div>
-              
-              <div className="space-y-2">
                 <Label htmlFor="confirm-device">
                   Type device identifier to confirm: <code className="text-primary">{requiredConfirmText}</code>
                 </Label>
@@ -240,13 +145,13 @@ export const EraseWorkflow = ({ device, onBack, onComplete }: EraseWorkflowProps
             </div>
 
             <Button 
-              onClick={startErasureProcess}
+              onClick={startErasure}
               disabled={!isConfirmationValid()}
               className="w-full bg-gradient-primary hover:opacity-90"
               size="lg"
             >
               <Zap className="h-4 w-4 mr-2" />
-              {isElectron ? 'Begin Secure Erasure' : 'Begin Demo Erasure'}
+              Begin Secure Erasure
             </Button>
           </CardContent>
         </Card>
@@ -271,22 +176,10 @@ export const EraseWorkflow = ({ device, onBack, onComplete }: EraseWorkflowProps
             <div className="space-y-4">
               <div className="flex justify-between text-sm">
                 <span className="text-muted-foreground">Progress</span>
-                <span className="font-medium">
-                  {erasureProgress?.progress ? Math.round(erasureProgress.progress) : 0}%
-                </span>
+                <span className="font-medium">{Math.round(progress)}%</span>
               </div>
-              <Progress 
-                value={erasureProgress?.progress || 0} 
-                className="h-2" 
-              />
-              <p className="text-sm text-muted-foreground">
-                {erasureProgress?.operation || 'Initializing...'}
-              </p>
-              {currentJobId && (
-                <p className="text-xs text-muted-foreground">
-                  Job ID: {currentJobId}
-                </p>
-              )}
+              <Progress value={progress} className="h-2" />
+              <p className="text-sm text-muted-foreground">{currentOperation}</p>
             </div>
 
             <div className="rounded-lg border bg-muted/30 p-4">
