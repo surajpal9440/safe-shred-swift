@@ -1,0 +1,161 @@
+# iOS Device Manual Wipe Instructions
+
+## Overview
+iOS devices cannot be remotely wiped through third-party applications due to Apple's security restrictions. The following instructions provide step-by-step guidance for manually performing a secure wipe of iOS devices.
+
+## Prerequisites
+- iOS device must be unlocked and accessible
+- Device should be charged to at least 50% battery
+- WiFi or cellular connection recommended for activation lock removal
+
+## Standard Erase Methods
+
+### Method 1: Settings App (Recommended)
+1. Open **Settings** app on the iOS device
+2. Navigate to **General**
+3. Scroll down and tap **Transfer or Reset iPhone/iPad**
+4. Tap **Erase All Content and Settings**
+5. Enter device passcode when prompted
+6. Enter Apple ID password if requested
+7. Tap **Erase** to confirm
+8. Wait for the process to complete (10-30 minutes)
+
+### Method 2: iTunes/Finder Restore
+1. Connect iOS device to computer with USB cable
+2. Open iTunes (Windows/macOS Mojave or earlier) or Finder (macOS Catalina or later)
+3. Select the device when it appears
+4. Click **Restore iPhone/iPad**
+5. Confirm the action by clicking **Restore**
+6. Wait for download and restore process to complete
+7. Set up as new device (do not restore from backup)
+
+### Method 3: Recovery Mode Restore
+Use this method if device is disabled or unresponsive:
+
+1. Connect device to computer
+2. Force restart the device:
+   - iPhone 8/X/11/12/13/14/15: Press and quickly release volume up, press and quickly release volume down, then press and hold side button
+   - iPhone 7/7 Plus: Press and hold volume down and side button
+   - iPhone 6s and earlier: Press and hold home and top/side button
+3. Keep holding until recovery mode screen appears
+4. iTunes/Finder will detect device in recovery mode
+5. Click **Restore** when prompted
+6. Wait for restore process to complete
+
+## Enhanced Security Wipe (For Sensitive Data)
+
+### Before Wiping (Optional for Maximum Security)
+1. Fill device storage with dummy data:
+   - Take many photos/videos to fill storage
+   - Download large apps
+   - This helps overwrite deleted data
+2. Encrypt device backup in iTunes (then delete backup)
+3. Change Apple ID password
+
+### After Standard Wipe
+1. Set up device as new (don't restore)
+2. Fill storage again with dummy data
+3. Perform erase process a second time
+4. Verify all data is removed
+
+## Enterprise/MDM Managed Devices
+
+### If Device is MDM Enrolled
+1. Contact IT administrator for remote wipe
+2. Or use MDM portal to initiate remote wipe
+3. Common MDM platforms:
+   - Apple Business Manager
+   - Microsoft Intune
+   - VMware Workspace ONE
+   - Cisco Meraki
+
+### Find My iPhone Remote Wipe
+1. Log in to icloud.com/find
+2. Select the device
+3. Click **Erase This Device**
+4. Confirm the action
+5. Device will erase when it connects to internet
+
+## Activation Lock Removal
+
+### For Personal Devices
+1. Sign out of Apple ID before wiping:
+   - Settings > [Your Name] > Sign Out
+2. Or use Apple ID password during setup after wipe
+
+### For Corporate Devices
+1. Use Apple Configurator 2 (Mac only)
+2. Or contact Apple Business Support
+3. Provide proof of purchase/ownership
+
+## Verification Steps
+
+After wiping, verify complete erasure:
+1. Device shows "Hello" setup screen
+2. No personal data visible during setup
+3. Previous apps/photos not accessible
+4. Apple ID not logged in
+5. WiFi networks forgotten
+
+## Physical Security Measures
+
+For maximum security:
+1. Remove SIM card and destroy it
+2. If device is damaged, physically destroy it:
+   - Remove logic board
+   - Destroy NAND flash storage chips
+   - Use professional e-waste service
+
+## Troubleshooting
+
+### Common Issues
+- **"Unable to Activate"**: Check network connection, try different WiFi
+- **Activation Lock**: Need original Apple ID and password
+- **Device Won't Start**: Try charging for 30+ minutes
+- **iTunes Doesn't Recognize**: Try different cable/port, restart computer
+
+### Error Codes
+- Error 4013/4014: USB connection issue, try different cable/port
+- Error 3194: iTunes can't contact verification server
+- Error 9: Hardware issue, may need professional service
+
+## Compliance Notes
+
+### Banking/Financial Industry
+- Document the wipe process with screenshots
+- Verify completion with checklist
+- Maintain audit trail of device disposal
+- Consider professional data destruction service for damaged devices
+
+### GDPR/Privacy Compliance
+- Standard iOS erase meets most data protection requirements
+- For highly sensitive data, consider professional data destruction
+- Document disposal process for compliance records
+
+## Important Warnings
+
+⚠️ **Before Wiping**
+- Backup important data if needed
+- Sign out of Apple ID to prevent activation lock
+- Remove from Find My iPhone
+- Note down device serial number for records
+
+⚠️ **After Wiping**
+- Do not restore from old backups containing sensitive data
+- Set up as new device
+- Use new Apple ID if required for security
+
+⚠️ **Legal Considerations**
+- Only wipe devices you own or have explicit authorization to wipe
+- Corporate devices may require IT department approval
+- Some jurisdictions require data destruction certificates
+
+## Contact Information
+
+For technical support or professional data destruction services:
+- Apple Support: 1-800-APL-CARE
+- Local Apple Authorized Service Provider
+- Professional data destruction services in your area
+
+Last Updated: January 2025
+Version: 2.1
